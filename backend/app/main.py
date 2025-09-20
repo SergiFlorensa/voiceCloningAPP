@@ -40,6 +40,11 @@ app.mount(
 )
 
 
+@app.get("/")
+def root() -> dict[str, object]:
+    return {"ok": True, "message": "Voice Cloning API is running"}
+
+
 @app.get(
     f"{settings.api_prefix}/health",
     response_model=HealthResponse,

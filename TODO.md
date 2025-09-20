@@ -1,14 +1,14 @@
-﻿# TODO
+# TODO
 
-## Estado actual
-- Backend listo con entorno `backend/.venv` (Python 3.11.5); pruebas `pytest` pasan.
-- TTS opcional: falta instalar `TTS`, `torch`, `torchaudio`, `webrtcvad` (requiere Microsoft C++ Build Tools en Windows).
-- Frontend compila (`npm run build`) y lint pasa tras añadir `@types/node`.
-- Servicios aún no verificados manualmente en modo dev (requiere arrancar backend y frontend).
+## Current status
+- Backend runs via `uvicorn app.main:app`; `/` and `/api/health` respond 200 with status payloads.
+- Frontend dev server renders the UI and `npm run build`/`npm run lint` succeed.
+- Optional TTS stack (`TTS`, `torch`, `torchaudio`, `webrtcvad`) still pending; requires Microsoft C++ Build Tools on Windows.
+- CI workflows (backend/frontend) and documentation (README, SETUP, ARCHITECTURE) are in place.
 
-## Próximas tareas
-1. Instalar toolchain C++ + dependencias TTS para habilitar síntesis sin GPU.
-2. Levantar backend (`uvicorn`) y frontend (`npm run dev`) manualmente y validar flujo básico.
-3. Implementar integración end-to-end: subida, normalización y generación desde la UI.
-4. Añadir manejo de estados (loading, errores) y descargas seguras.
-5. Ampliar cobertura: tests con mocks de TTS, pruebas UI y scripts de limpieza de artefactos.
+## Next steps
+1. Install the C++ build tools and add the TTS dependencies to unlock voice synthesis on CPU.
+2. Implement the full backend flow (upload, normalize, synthesize, serve downloads) with proper error handling and cleanup.
+3. Wire the frontend feature end-to-end: file picker, form validation, mutation states, audio preview and download link.
+4. Extend automated coverage (backend tests with TTS mocks, frontend component/hook tests) and add maintenance scripts (storage cleanup, model pruning).
+5. Prepare deployment enhancements (Docker image tweaks, optional GPU build, environment documentation) once the flow is stable.
