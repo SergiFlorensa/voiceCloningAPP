@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    image: voice-cloning-backend:dev
+    env_file:
+      - ../backend/.env
+    environment:
+      APP_STORAGE_DIR: /app/storage
+      APP_MODEL_CACHE_DIR: /app/model_cache
+      APP_CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_storage:/app/storage
+      - backend_model_cache:/app/model_cache
+    networks:
+      - voice_net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: infrastructure/docker/frontend.Dockerfile
+    image: voice-cloning-frontend:dev
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks:
+      - voice_net
+
+volumes:
+  backend_storage:
+  backend_model_cache:
+
+networks:
+  voice_net:
+    driver: bridge
