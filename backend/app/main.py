@@ -12,7 +12,10 @@ from app.schemas.voice import HealthResponse
 settings = get_settings()
 configure_logging(settings.log_level)
 
-app = FastAPI(title=settings.app_name, version=settings.api_version)
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.api_version,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,7 +28,10 @@ app.add_middleware(
 generated_dir = settings.storage_dir / "generated"
 generated_dir.mkdir(parents=True, exist_ok=True)
 
-app.include_router(api_router, prefix=f"{settings.api_prefix}/{settings.api_version}")
+app.include_router(
+    api_router,
+    prefix=f"{settings.api_prefix}/{settings.api_version}",
+)
 
 app.mount(
     f"{settings.api_prefix}/{settings.api_version}/files",
@@ -34,6 +40,9 @@ app.mount(
 )
 
 
-@app.get(f"{settings.api_prefix}/health", response_model=HealthResponse)
+@app.get(
+    f"{settings.api_prefix}/health",
+    response_model=HealthResponse,
+)
 def health() -> HealthResponse:
     return HealthResponse(environment=settings.environment)
