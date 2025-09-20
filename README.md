@@ -1,105 +1,73 @@
-# 🎙️ Clonador de Voz (Proyecto Personal)
+# Voice Cloning App
 
-Aplicación inspirada en [notegpt.io](https://notegpt.io/ai-voice-cloning), pero hecha desde cero para uso personal y divertido.
-Permite **subir un audio o vídeo de referencia** → extraer la voz → escribir cualquier frase → generar la frase con la misma voz usando IA.
+Personal project inspired by NoteGPT's voice cloning flow. Upload a short audio/video
+sample, provide any text, and let the backend generate a new clip using the same voice via
+Coqui XTTS v2.
 
----
+## Features
 
-## 🚀 Objetivo de la App
-- Subir un **clip de voz o vídeo** de una persona.
-- El sistema normaliza el audio (formato `.wav`, 16kHz, mono).
-- Con **XTTSv2 (Coqui TTS)** se entrena de manera instantánea una voz clonada.
-- El usuario escribe un texto en un cuadro → el sistema devuelve un audio en la voz clonada.
-- Uso **únicamente personal/divertido**.
-- **Disclaimer**: toda voz generada debe indicarse como imitación IA.
+- Audio/video upload with automatic normalisation (FFmpeg -> 16 kHz mono WAV)
+- Text-to-speech generation with speaker cloning (XTTS v2)
+- React frontend with form validation, progress feedback, and audio preview
+- FastAPI backend exposing REST endpoints and serving generated files
+- Docker Compose stack for local deployment with persistent volumes
 
----
+## Tech Stack
 
-## 🧰 Requisitos técnicos
+| Layer     | Technologies |
+|-----------|--------------|
+| Frontend  | React 19, Vite, TypeScript, Tailwind CSS v4, React Query, React Hook Form |
+| Backend   | Python 3.11, FastAPI, Uvicorn, Pydantic, Coqui TTS (XTTS v2) |
+| Tooling   | uv / pip, npm / pnpm, Ruff, Pytest, ESLint, Docker, FFmpeg |
 
-### Generales
-- **Node.js 20+**
-- **Python 3.10+**
-- **Git** y cuenta en GitHub
-- **FFmpeg** (para procesar y normalizar audio/video)
-- **Opcional GPU NVIDIA + CUDA** (para aceleración de inferencia)
+## Repository Layout
 
-### Frontend
-- **React + Vite + TypeScript**
-- **TailwindCSS v4** con `@tailwindcss/vite`
-- Estructura **feature-based**:
+```
+backend/        # FastAPI application (app/, services/, schemas/, tests/)
+frontend/       # React app organised by feature modules
+infrastructure/ # Dockerfiles, nginx config, compose stack
+scripts/        # Bootstrap helpers for dependency installation
+docs/           # Architecture and setup documentation
+```
 
+## Getting Started
 
-### Backend
-- **FastAPI** (Python)
-- Librerías:
-- `fastapi`
-- `uvicorn`
-- `ffmpeg-python`
-- `pydub`
-- `librosa`
-- `webrtcvad`
-- `python-multipart`
-- `TTS` (Coqui, modelo `xtts_v2`)
+1. Install prerequisites (Python 3.10+, Node.js 20+, FFmpeg). Optional: `uv`, `pnpm`.
+2. Copy environment samples and adjust values:
+   ```bash
+   cp .env.example .env
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+3. Bootstrap dependencies:
+   ```bash
+   make bootstrap
+   ```
+4. Run services locally:
+   ```bash
+   make backend-dev    # http://localhost:8000
+   make frontend-dev   # http://localhost:5173
+   ```
 
----
+For more detail, see `docs/SETUP.md` and `docs/ARCHITECTURE.md`.
 
-## 🗂️ Estructura del Proyecto
+## Docker Compose
 
-------------------------------------------------------
-🎙 Proyecto: Clonador de Voz AI (estilo NoteGPT, solo Voice Cloning)
-📌 Descripción
+Build and run the full stack:
 
-Aplicación web para clonar voces a partir de un audio/vídeo subido por el usuario.
-Flujo básico:
+```bash
+docker compose -f infrastructure/docker-compose.yml up --build
+```
 
-El usuario sube un archivo de audio/vídeo.
+Volumes persist generated audio (`backend_storage`) and model downloads
+(`backend_model_cache`).
 
-El backend extrae el audio limpio.
+## Roadmap
 
-El modelo open-source genera un embedding de hablante (las características únicas de esa voz).
+- [x] CI pipelines (lint, tests, type checks)
+- [ ] Voice generation progress feedback and error states in UI
+- [ ] Optional GPU-enabled image for faster inference
+- [ ] Authentication / rate limiting if opened beyond personal use
 
-El usuario escribe un texto → el sistema lo sintetiza con la voz clonada.
-
-Se devuelve un archivo de audio reproducible/descargable.
-
-⚠️ Uso personal/divertido. Respeta derechos de voz/imágenes si decides compartir resultados.
-
-🛠️ Tecnologías principales
-Frontend
-
-React + Vite → interfaz rápida, moderna y fácil de desplegar.
-
-TailwindCSS → estilos responsivos y limpios.
-
-react-dropzone → para subir archivos.
-
-Reproductor de audio nativo <audio> de HTML5.
-
-Backend
-
-Python 3.10+
-
-FastAPI → para exponer endpoints (subir audio, clonar voz, generar TTS).
-
-Uvicorn → servidor ASGI rápido.
-
-ffmpeg → extraer audio de vídeos y convertir formatos.
-
-librosa o pydub → análisis y preprocesamiento de audio.
-
-Modelos open-source
-
-OpenVoice (MyShell) o Coqui TTS (XTTS-v2) → clonación de voz + TTS multilingüe.
-
-HiFi-GAN (ya integrado en Coqui) → vocoder para audio natural.
-
-webrtcvad → detección de voz (para limpiar silencios).
-
-Infraestructura
-
-Docker → contenedores para backend/modelos.
-
-GPU NVIDIA con CUDA (opcional, pero recomendado para inferencias rápidas).
-
-Almacenamiento: inicio en local, posibilidad de S3/MinIO si lo escalas.
+> **Note:** Use responsibly. Disclose when audio was generated with AI and respect
+> voice ownership rights.
