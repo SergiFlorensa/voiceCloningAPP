@@ -12,8 +12,8 @@ __pycache__/
 .vscode
 .idea
 
-# Artefactos
+# Artefacts
 frontend/.env
 backend/.env
-backend/modelos/
-backend/archivos/
+backend/storage/
+backend/model_cache/
