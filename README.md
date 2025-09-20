@@ -28,3 +28,21 @@ Permite **subir un audio o vídeo de referencia** → extraer la voz → escribi
 - **React + Vite + TypeScript**
 - **TailwindCSS v4** con `@tailwindcss/vite`
 - Estructura **feature-based**:
+
+
+### Backend
+- **FastAPI** (Python)
+- Librerías:
+- `fastapi`
+- `uvicorn`
+- `ffmpeg-python`
+- `pydub`
+- `librosa`
+- `webrtcvad`
+- `python-multipart`
+- `TTS` (Coqui, modelo `xtts_v2`)
+
+---
+
+## 🗂️ Estructura del Proyecto
+
