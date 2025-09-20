@@ -1,0 +1,19 @@
+# Node / Vite
+node_modules
+dist
+.vite
+
+# Python
+.venv
+__pycache__/
+*.pyc
+
+# Editor
+.vscode
+.idea
+
+# Artefactos
+frontend/.env
+backend/.env
+backend/modelos/
+backend/archivos/
