@@ -5,6 +5,7 @@ dist
 
 # Python
 .venv
+backend/.venv_py312_backup/
 __pycache__/
 *.pyc
 
@@ -13,6 +14,7 @@ __pycache__/
 .idea
 
 # Artefacts
+.env
 frontend/.env
 backend/.env
 backend/storage/
