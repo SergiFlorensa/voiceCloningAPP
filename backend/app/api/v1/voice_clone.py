@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
@@ -18,17 +19,33 @@ router = APIRouter(prefix="/voice-clone", tags=["voice-clone"])
 async def generate_voice(text: str = Form(...), reference: UploadFile = File(...)) -> VoiceCloneResponse:
     settings = get_settings()
 
+    normalized_path: Path | None = None
     try:
         normalized_path = await save_and_normalize(reference)
+    except ValueError as exc:
+        logger.warning("Reference audio rejected: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
     except Exception as exc:  # noqa: BLE001
         logger.exception("Failed to process reference audio")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error processing reference audio") from exc
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error processing reference audio",
+        ) from exc
 
     try:
         generated_path = await synthesize_voice(text=text, reference_path=normalized_path)
     except Exception as exc:  # noqa: BLE001
         logger.exception("TTS generation failed")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Voice synthesis failed") from exc
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Voice synthesis failed",
+        ) from exc
+    finally:
+        if normalized_path is not None:
+            normalized_path.unlink(missing_ok=True)
 
     download_url = _build_download_url(generated_path.name, settings.api_prefix, settings.api_version)
     return VoiceCloneResponse(download_url=download_url)
