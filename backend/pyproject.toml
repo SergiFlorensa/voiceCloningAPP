@@ -16,6 +16,7 @@ dependencies = [
   "pydantic-settings>=2.6",
   "python-multipart>=0.0.9",
   "TTS>=0.22.0",
+  "transformers>=4.37,<4.50",
   "ffmpeg-python>=0.2.0",
   "librosa>=0.10",
   "soundfile>=0.12",

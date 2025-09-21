@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     storage_dir: Path = Path(__file__).resolve().parents[2] / "storage"
     model_cache_dir: Path = Path(__file__).resolve().parents[2] / "model_cache"
     tts_model_name: str = "tts_models/multilingual/multi-dataset/xtts_v2"
+    tts_language: str = "en"
     ffmpeg_bin: str = "ffmpeg"
     log_level: str = "INFO"
 

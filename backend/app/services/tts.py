@@ -27,10 +27,12 @@ def _ensure_torch_safe_globals() -> None:
     try:
         from torch.serialization import add_safe_globals  # type: ignore[import]
         from TTS.tts.configs.xtts_config import XttsConfig  # type: ignore[import]
+        from TTS.tts.models.xtts import XttsAudioConfig, XttsArgs  # type: ignore[import]
+        from TTS.config.shared_configs import BaseDatasetConfig  # type: ignore[import]
     except Exception:
         return
     try:
-        add_safe_globals([XttsConfig])
+        add_safe_globals([XttsConfig, XttsAudioConfig, XttsArgs, BaseDatasetConfig])
     except Exception:
         return
     _TORCH_SERIALIZATION_CONFIGURED = True
@@ -65,6 +67,7 @@ async def synthesize_voice(text: str, reference_path: Path) -> Path:
                 tts.tts_to_file,
                 text=text,
                 speaker_wav=str(reference_path),
+                language=_settings.tts_language,
                 file_path=str(output_path),
             ),
             timeout=_TTS_TIMEOUT_SECONDS,
