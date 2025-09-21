@@ -1,5 +1,15 @@
 from __future__ import annotations
 
+import asyncio
+import sys
+
+# Windows compatibility: ensure asyncio subprocesses work on Windows
+if sys.platform.startswith("win"):
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -56,3 +66,4 @@ def root() -> dict[str, object]:
 )
 def health() -> HealthResponse:
     return HealthResponse(environment=settings.environment)
+

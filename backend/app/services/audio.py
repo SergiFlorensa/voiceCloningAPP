@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio.subprocess import DEVNULL, PIPE
+import subprocess
 from pathlib import Path
+from typing import Callable
 from uuid import uuid4
 
 from fastapi import UploadFile
@@ -19,6 +20,21 @@ _FFMPEG_TIMEOUT_SECONDS = 60
 
 for directory in (_RAW_DIR, _NORMALIZED_DIR):
     directory.mkdir(parents=True, exist_ok=True)
+
+
+def _build_ffmpeg_runner(args: list[str]) -> Callable[[], subprocess.CompletedProcess[bytes]]:
+    creation_flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+    def _runner() -> subprocess.CompletedProcess[bytes]:
+        return subprocess.run(
+            args,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            check=False,
+            creationflags=creation_flags,
+        )
+
+    return _runner
 
 
 async def save_and_normalize(file: UploadFile) -> Path:
@@ -43,8 +59,9 @@ async def save_and_normalize(file: UploadFile) -> Path:
         if total_bytes == 0:
             raise ValueError("Reference audio file is empty")
 
-        process = await asyncio.create_subprocess_exec(
-            "ffmpeg",
+        ffmpeg_bin = str(_settings.ffmpeg_bin)
+        args = [
+            ffmpeg_bin,
             "-y",
             "-i",
             str(raw_path),
@@ -53,23 +70,23 @@ async def save_and_normalize(file: UploadFile) -> Path:
             "-ar",
             "16000",
             str(normalized_path),
-            stdout=DEVNULL,
-            stderr=PIPE,
-        )
+        ]
+
+        loop = asyncio.get_running_loop()
+        runner = _build_ffmpeg_runner(args)
 
         try:
-            _, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=_FFMPEG_TIMEOUT_SECONDS
+            completed = await asyncio.wait_for(
+                loop.run_in_executor(None, runner),
+                timeout=_FFMPEG_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError as exc:  # pragma: no cover - best effort safeguard
-            process.kill()
-            await process.communicate()
+        except asyncio.TimeoutError as exc:  # pragma: no cover
             raise RuntimeError("FFmpeg normalization timed out") from exc
 
-        if process.returncode != 0:
+        if completed.returncode != 0:
             error_message = "FFmpeg normalization failed"
-            if stderr:
-                decoded = stderr.decode(errors="ignore").strip()
+            if completed.stderr:
+                decoded = completed.stderr.decode(errors="ignore").strip()
                 if decoded:
                     error_message = f"{error_message}: {decoded}"
             raise RuntimeError(error_message)
@@ -80,3 +97,4 @@ async def save_and_normalize(file: UploadFile) -> Path:
         raise
     finally:
         raw_path.unlink(missing_ok=True)
+
